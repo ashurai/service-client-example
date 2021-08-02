@@ -45,7 +45,7 @@ services:
 
   client_app:
     image: golang:1.14
-    entrypoint: /go/src/app/start.sh
+    entrypoint: [/go/src/app/start.sh]
     network_mode: host
     volumes:
       - .:/go/src/app

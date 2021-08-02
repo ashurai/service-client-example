@@ -36,7 +36,6 @@ func (as *AccService) NewAccount(ctx context.Context, acc *AccountData) (*Accoun
 	}
 
 	account := &AccountData{}
-
 	res, err := cl.Do(ctx, req, account)
 	if err != nil {
 		return nil, res, err
@@ -62,7 +61,7 @@ func (as *AccService) DeleteByID(ctx context.Context, id string, version int) (*
 	return res, nil
 }
 
-func CreateAccountsService(client *Client) *AccService {
+func LoadAccountsService(client *Client) *AccService {
 	if client == nil {
 		client = CreateClient(nil)
 	}

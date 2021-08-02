@@ -61,23 +61,21 @@ func (c *Client) createRequest(method string, url string, payload interface{}) (
 func (c *Client) Do(ctx context.Context, req *http.Request, obj interface{}) (*Response, error) {
 	req = req.WithContext(ctx)
 	resp, err := c.httpClient.Do(req)
-	fmt.Println("???????????????????", err.Error())
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	fmt.Println("???????????????????", err.Error())
-	response := &Response{Response: resp}
 
+	response := &Response{Response: resp}
 	resData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return response, nil
 	}
 
-	repErr := &respError{}
-	err = json.Unmarshal(resData, repErr)
-	if err != nil && repErr.ErrorMSG != "" {
-		return response, errors.New(repErr.ErrorMSG)
+	respErr := &respError{}
+	_ = json.Unmarshal(resData, respErr)
+	if respErr.ErrorMSG != "" {
+		return response, errors.New(respErr.ErrorMSG)
 	}
 
 	if obj != nil {
@@ -88,7 +86,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, obj interface{}) (*R
 		}
 
 		encodeData, err := json.Marshal(result.Data)
-		if err != nil {
+		if err == nil {
 			err = json.Unmarshal(encodeData, obj)
 		}
 	}
@@ -110,7 +108,7 @@ func (c *Client) DELETE(url string, reqBody interface{}) (*http.Request, error) 
 func CreateClient(options *Options) *Client {
 	if options == nil {
 		options = &Options{
-			Timeout: 3000000,
+			Timeout: 3000,
 			Base:    "http://localhost:8080/v1",
 		}
 	}
@@ -118,7 +116,7 @@ func CreateClient(options *Options) *Client {
 	baseURL, _ := url.Parse(options.Base)
 
 	return &Client{
-		httpClient: &http.Client{Timeout: time.Duration(options.Timeout)},
+		httpClient: &http.Client{Timeout: time.Duration(options.Timeout) * time.Millisecond},
 		BasePath:   baseURL,
 	}
 }
